@@ -32,8 +32,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 // Permitir endpoints públicos, swagger e h2-console; exigir auth para o resto
                 .requestMatchers(
-                    "/api/public/**",
-                    "/api/health",
+                    "/public/**",
+                    "/health",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",

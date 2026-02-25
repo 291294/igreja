@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.seuprojeto.igreja.model.Contribuicao;
 import com.seuprojeto.igreja.service.ContribuicaoService;
+import com.seuprojeto.igreja.security.TenantContextHolder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,10 +35,12 @@ public class ContribuicaoController {
     }
 
     @PostMapping
-    @Operation(summary = "Registrar contribuição", description = "Registra uma nova contribuição/oferta")
+    @Operation(summary = "Registrar contribuição", description = "Registra uma nova contribuição/oferta na sua Igreja")
     @ApiResponse(responseCode = "200", description = "Contribuição registrada com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     public ResponseEntity<Contribuicao> criar(@RequestBody Contribuicao contribuicao) {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
+        contribuicao.getIgreja().setId(igrejaId);
         Contribuicao contribuicaoSalva = service.salvar(contribuicao);
         return ResponseEntity.ok(contribuicaoSalva);
     }
@@ -52,39 +55,39 @@ public class ContribuicaoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/igreja/{igrejaId}")
-    @Operation(summary = "Listar contribuições por Igreja", description = "Retorna todas as contribuições de uma Igreja")
+    @GetMapping
+    @Operation(summary = "Listar contribuições", description = "Retorna todas as contribuições da sua Igreja")
     @ApiResponse(responseCode = "200", description = "Lista de contribuições")
-    public ResponseEntity<List<Contribuicao>> listarPorIgreja(@PathVariable Long igrejaId) {
+    public ResponseEntity<List<Contribuicao>> listar() {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
         return ResponseEntity.ok(service.listarPorIgreja(igrejaId));
     }
 
-    @GetMapping("/membro/{membroId}/igreja/{igrejaId}")
-    @Operation(summary = "Listar contribuições por membro", description = "Retorna todas as contribuições de um membro específico")
+    @GetMapping("/membro/{membroId}")
+    @Operation(summary = "Listar contribuições por membro", description = "Retorna todas as contribuições de um membro da sua Igreja")
     @ApiResponse(responseCode = "200", description = "Lista de contribuições do membro")
-    public ResponseEntity<List<Contribuicao>> listarPorMembro(
-            @PathVariable Long membroId,
-            @PathVariable Long igrejaId) {
+    public ResponseEntity<List<Contribuicao>> listarPorMembro(@PathVariable Long membroId) {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
         return ResponseEntity.ok(service.listarPorMembro(membroId, igrejaId));
     }
 
-    @GetMapping("/periodo/{igrejaId}")
-    @Operation(summary = "Listar contribuições por período", description = "Retorna contribuições de uma Igreja em um período específico")
+    @GetMapping("/periodo")
+    @Operation(summary = "Listar contribuições por período", description = "Retorna contribuições da sua Igreja em um período específico")
     @ApiResponse(responseCode = "200", description = "Lista de contribuições no período")
     public ResponseEntity<List<Contribuicao>> listarPorPeriodo(
-            @PathVariable Long igrejaId,
             @RequestParam LocalDate dataInicio,
             @RequestParam LocalDate dataFim) {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
         return ResponseEntity.ok(service.listarPorPeriodo(igrejaId, dataInicio, dataFim));
     }
 
-    @GetMapping("/total/{igrejaId}")
-    @Operation(summary = "Total de contribuições por período", description = "Calcula o total de contribuições em um período")
+    @GetMapping("/total")
+    @Operation(summary = "Total de contribuições por período", description = "Calcula o total de contribuições da sua Igreja em um período")
     @ApiResponse(responseCode = "200", description = "Total de contribuições")
     public ResponseEntity<BigDecimal> totalPorPeriodo(
-            @PathVariable Long igrejaId,
             @RequestParam LocalDate dataInicio,
             @RequestParam LocalDate dataFim) {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
         BigDecimal total = service.somarPorPeriodo(igrejaId, dataInicio, dataFim);
         return ResponseEntity.ok(total);
     }

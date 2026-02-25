@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.seuprojeto.igreja.model.Membro;
 import com.seuprojeto.igreja.service.MembroService;
+import com.seuprojeto.igreja.security.TenantContextHolder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,10 +33,13 @@ public class MembroController {
     }
 
     @PostMapping
-    @Operation(summary = "Criar novo membro", description = "Registra um novo membro na Igreja")
+    @Operation(summary = "Criar novo membro", description = "Registra um novo membro na sua Igreja")
     @ApiResponse(responseCode = "200", description = "Membro criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     public ResponseEntity<Membro> criar(@RequestBody Membro membro) {
+        // Extrair igrejaId do JWT (tenant do usuário autenticado)
+        Long igrejaId = TenantContextHolder.getIgrejaId();
+        membro.getIgreja().setId(igrejaId);
         Membro membroSalvo = service.salvar(membro);
         return ResponseEntity.ok(membroSalvo);
     }
@@ -50,19 +54,19 @@ public class MembroController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/igreja/{igrejaId}")
-    @Operation(summary = "Listar membros por Igreja", description = "Retorna todos os membros de uma Igreja")
+    @GetMapping
+    @Operation(summary = "Listar membros", description = "Retorna todos os membros da sua Igreja (multi-tenant seguro)")
     @ApiResponse(responseCode = "200", description = "Lista de membros")
-    public ResponseEntity<List<Membro>> listarPorIgreja(@PathVariable Long igrejaId) {
+    public ResponseEntity<List<Membro>> listar() {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
         return ResponseEntity.ok(service.listarPorIgreja(igrejaId));
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Buscar membros por nome", description = "Pesquisa membros pelo nome em uma Igreja específica")
+    @Operation(summary = "Buscar membros por nome", description = "Pesquisa membros pelo nome na sua Igreja")
     @ApiResponse(responseCode = "200", description = "Lista de membros encontrados")
-    public ResponseEntity<List<Membro>> buscarPorNome(
-            @RequestParam String nome,
-            @RequestParam Long igrejaId) {
+    public ResponseEntity<List<Membro>> buscarPorNome(@RequestParam String nome) {
+        Long igrejaId = TenantContextHolder.getIgrejaId();
         return ResponseEntity.ok(service.buscarPorNome(nome, igrejaId));
     }
 

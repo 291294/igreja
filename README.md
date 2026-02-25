@@ -206,10 +206,42 @@ curl -X GET "http://localhost:8080/api/contribuicoes/total/1?dataInicio=2026-02-
 ## 🔒 Segurança (Futuro)
 
 Atualmente CSRF está desabilitado para testes. Em produção:
-- Implementar autenticação JWT
-- Validar tokens
-- Adicionar roles (ADMIN, MEMBRO, etc)
-- Criptografar passwords com BCrypt
+- Implementar validação extra e hardening de endpoints
+- Reforçar CORS e proteção contra bruteforce
+
+## 🔑 Autenticação JWT (atual)
+
+- Endpoint público de registro: `POST /api/public/registro` — cria uma `Igreja`, assinatura FREE e usuário admin, retornando um token JWT.
+- Como usar: inclua o header `Authorization: Bearer <token>` em requisições autenticadas.
+- Claims úteis no token: `sub` (userId), `igrejaId`, `role` (ex.: `ADMIN`), `exp` (expiração).
+- Swagger UI: `/swagger-ui.html` ou `/swagger-ui/index.html` — você pode autenticar as chamadas manualmente colocando o header `Authorization`.
+
+Exemplo mínimo de corpo para registro (JSON):
+
+```json
+{
+  "nomeIgreja": "Igreja Exemplo",
+  "emailAdmin": "admin@exemplo.com",
+  "senha": "senhaSegura123"
+}
+```
+
+Resposta (exemplo):
+
+```json
+{
+  "token": "<JWT>",
+  "expiresAt": "2026-02-25T..."
+}
+```
+
+Rodando localmente (opções):
+
+```bash
+mvn spring-boot:run
+# ou
+java -jar target/igreja-1.0.0.jar
+```
 
 ## 📊 Próximas Versões
 

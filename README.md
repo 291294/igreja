@@ -1,5 +1,8 @@
 # Sistema de Gerenciamento para Igrejas Pequenas
 
+**Release:** v1.0.0 — Plataforma SaaS inicial (Planos, Assinaturas, JWT Multi-Tenant)
+
+
 ## 📋 Descrição
 
 Sistema web para gerenciar igrejas pequenas (até 200 membros) com funcionalidades de:

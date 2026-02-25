@@ -1,8 +1,10 @@
 package com.seuprojeto.igreja.model;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
 
 public class IgrejaTest {
 
@@ -12,7 +14,7 @@ public class IgrejaTest {
         Igreja igreja = new Igreja();
         igreja.setNome("Igreja Evangélica Central");
         igreja.setEmail("contato@igrejcentral.com");
-        igreja.setSenha("senha123");
+        igreja.setSenhaHash("$2a$10$hashedPassword");
 
         // Act
         igreja.prePersist();
@@ -27,11 +29,12 @@ public class IgrejaTest {
     @Test
     public void testConstrutorIgreja() {
         // Arrange
-        Igreja igreja = new Igreja("Minha Igreja", "email@igreja.com", "senha456");
+        Igreja igreja = new Igreja("Minha Igreja", "email@igreja.com", "$2a$10$senhaHasheada");
 
         // Assert
         assertEquals("Minha Igreja", igreja.getNome());
         assertEquals("email@igreja.com", igreja.getEmail());
-        assertEquals("senha456", igreja.getSenha());
+        assertEquals("$2a$10$senhaHasheada", igreja.getSenhaHash());
     }
 }
+

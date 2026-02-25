@@ -1,13 +1,15 @@
 package com.seuprojeto.igreja.service;
 
-import com.seuprojeto.igreja.model.Membro;
-import com.seuprojeto.igreja.model.Igreja;
-import com.seuprojeto.igreja.repository.MembroRepository;
-import com.seuprojeto.igreja.repository.IgrejaRepository;
-import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.seuprojeto.igreja.model.Igreja;
+import com.seuprojeto.igreja.model.Membro;
+import com.seuprojeto.igreja.repository.IgrejaRepository;
+import com.seuprojeto.igreja.repository.MembroRepository;
 
 @Service
 public class MembroService {
@@ -21,12 +23,27 @@ public class MembroService {
     }
 
     public Membro salvar(Membro membro) {
+        if (membro.getIgreja() != null && membro.getIgreja().getId() != null) {
+            Long igrejaId = membro.getIgreja().getId();
+            Igreja igreja = igrejaRepository.findById(igrejaId)
+                    .orElseThrow(() -> new RuntimeException("Igreja não encontrada com ID: " + igrejaId));
+
+            if (igreja.getPlano() != null && igreja.getPlano().getLimiteMembros() != null) {
+                int limite = igreja.getPlano().getLimiteMembros();
+                int atuais = repository.findByIgrejaId(igrejaId).size();
+                if (atuais >= limite) {
+                    throw new RuntimeException("Limite de membros do plano atingido: " + limite);
+                }
+            }
+        }
+
         if (membro.getDataCadastro() == null) {
             membro.setDataCadastro(LocalDate.now());
         }
         if (membro.getAtivo() == null) {
             membro.setAtivo(true);
         }
+
         return repository.save(membro);
     }
 

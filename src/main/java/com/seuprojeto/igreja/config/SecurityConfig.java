@@ -30,8 +30,16 @@ public class SecurityConfig {
         http
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                // Modo desenvolvimento: permitir todas as requisições
-                .anyRequest().permitAll()
+                // Permitir endpoints públicos, swagger e h2-console; exigir auth para o resto
+                .requestMatchers(
+                    "/api/public/**",
+                    "/api/health",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/h2-console/**"
+                ).permitAll()
+                .anyRequest().authenticated()
             )
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))

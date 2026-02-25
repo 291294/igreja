@@ -2,9 +2,12 @@ package com.seuprojeto.igreja.security;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,12 +40,18 @@ public class JwtFilter extends OncePerRequestFilter {
                 Long igrejaId = jwtProvider.extrairIgrejaId(token);
                 String role = jwtProvider.extrairRole(token);
 
+                // Criar authorities a partir da role do token
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                if (role != null && !role.isBlank()) {
+                    authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                }
+
                 // Criar authentication com o usuário extraído do token
                 UsernamePasswordAuthenticationToken auth = 
                     new UsernamePasswordAuthenticationToken(
-                        usuarioId, 
-                        null, 
-                        new ArrayList<>()
+                        usuarioId,
+                        null,
+                        authorities.stream().collect(Collectors.toList())
                     );
 
                 // Armazenar igrejaId e role nos detalhes da authentication
